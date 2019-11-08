@@ -27,7 +27,9 @@ object Tester{
     }
     val width  = image.width.value  * ratio
     val height = image.height.value * ratio
-    graphicsContext.drawImage(image, 0, 0, width, height)
+    val drawX  = (_width  - width ) / 2
+    val drawY  = (_height - height) / 2
+    graphicsContext.drawImage(image, drawX, drawY, width, height)
     counter += 1
   }
 }
