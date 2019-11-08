@@ -2,6 +2,7 @@ package com.github.nnnnusui.moviemaker
 
 import java.nio.file.{Files, Paths}
 
+import com.sun.prism.impl.Disposer.Target
 import scalafx.scene.canvas.{Canvas, GraphicsContext}
 import scalafx.scene.image.{Image, ImageView}
 
@@ -14,23 +15,33 @@ object Tester{
     .toList
 
   var counter = 0
-  def draw(graphicsContext: GraphicsContext, _width: Double, _height: Double): Unit ={
-    if (counter >= files.size) {
+  def draw(graphicsContext: GraphicsContext, targetWidth: Double, targetHeight: Double): Unit ={
+    if (counter >= files.size)
       counter = 0
-      return
-    }
-    graphicsContext.clearRect(0, 0, _width, _height)
+
+    graphicsContext.clearRect(0, 0, targetWidth, targetHeight)
     val image = files(counter)
-    val ratio = {
-      val widthRatio  = _width  / image.width.value
-      val heightRatio = _height / image.height.value
-      Seq(widthRatio, heightRatio).min
-    }
-    val width  = image.width.value  * ratio
-    val height = image.height.value * ratio
-    val drawX  = (_width  - width ) / 2
-    val drawY  = (_height - height) / 2
-    graphicsContext.drawImage(image, drawX, drawY, width, height)
+    val imageBox = image.box
+    val targetBox = Box(targetWidth, targetHeight)
+
+    val resizedBox = imageBox.getResizedTo(targetBox)
+    val startPos = resizedBox.getCenteringPosTo(targetBox)
+    graphicsContext.drawImage(image, startPos.x, startPos.y, resizedBox.width, resizedBox.height)
     counter += 1
+  }
+
+  implicit class RichImage(val src: Image){
+    val box = Box(src.width.value, src.height.value)
+  }
+  case class Pos(x: Double, y: Double)
+  case class Box(width: Double, height: Double){
+    def getResizedTo(target: Box): Box ={
+      val ratio = Seq(target.width  / width
+        ,target.height / height).min
+      Box(width * ratio, height * ratio)
+    }
+    def getCenteringPosTo(target: Box): Pos
+    = Pos((target.width  - width ) /2
+      ,(target.height - height) /2)
   }
 }
