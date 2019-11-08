@@ -19,6 +19,7 @@ object Tester{
       counter = 0
       return
     }
+    graphicsContext.clearRect(0, 0, _width, _height)
     val image = files(counter)
     val ratio = {
       val widthRatio  = _width  / image.width.value
