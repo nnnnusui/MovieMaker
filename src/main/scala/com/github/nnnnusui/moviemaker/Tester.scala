@@ -2,6 +2,7 @@ package com.github.nnnnusui.moviemaker
 
 import java.nio.file.{Files, Paths}
 
+import scalafx.scene.canvas.{Canvas, GraphicsContext}
 import scalafx.scene.image.{Image, ImageView}
 
 object Tester{
@@ -13,12 +14,13 @@ object Tester{
     .toList
 
   var counter = 0
-  def draw(imageView: ImageView): Unit ={
+  def draw(graphicsContext: GraphicsContext): Unit ={
     if (counter >= files.size) {
       counter = 0
       return
     }
-    imageView.image = files(counter)
+    val image = files(counter)
+    graphicsContext.drawImage(image, 0, 0)
     counter += 1
   }
 }

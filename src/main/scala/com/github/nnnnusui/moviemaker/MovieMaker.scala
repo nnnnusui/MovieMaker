@@ -5,6 +5,7 @@ import java.nio.file.{Files, Paths}
 import scalafx.animation.{KeyFrame, Timeline}
 import scalafx.application.{JFXApp, Platform}
 import scalafx.scene.Scene
+import scalafx.scene.canvas.Canvas
 import scalafx.scene.control.Button
 import scalafx.scene.image.{Image, ImageView}
 import scalafx.scene.layout.BorderPane
@@ -12,11 +13,12 @@ import scalafx.util.Duration
 
 object MovieMaker extends JFXApp{
   val fps = 60
-  val imageView = new ImageView {
-    this.setPreserveRatio(true)
-  }
+//  val imageView = new ImageView {
+//    this.setPreserveRatio(true)
+//  }
+  val canvas = new Canvas()
   val keyFrame = KeyFrame(Duration(1000/fps), onFinished = _=> {
-    Tester.draw(imageView)
+    Tester.draw(canvas.graphicsContext2D)
   })
   val timeline = Timeline(Seq.fill(1) {keyFrame})
   timeline.cycleCount = Timeline.Indefinite
@@ -25,13 +27,13 @@ object MovieMaker extends JFXApp{
     onAction = _ => Platform.runLater(timeline.play())
   }
   val pane = new BorderPane {
-    center = imageView
+    center = canvas
     bottom = button
   }
   val _scene = new Scene {
     root = pane
-    imageView.fitWidth  <== this.width
-    imageView.fitHeight <== this.height - 50
+    canvas.width  <== this.width
+    canvas.height <== this.height - 50
   }
   stage = new JFXApp.PrimaryStage {
     title.value = "MovieMaker"
