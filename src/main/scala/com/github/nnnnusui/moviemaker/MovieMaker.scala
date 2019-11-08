@@ -37,7 +37,7 @@ object MovieMaker extends JFXApp{
     scene = _scene
   }
   val keyFrame = KeyFrame(Duration(1000/fps), onFinished = _=> {
-    Tester.draw(canvas.graphicsContext2D, canvas.width.value, canvas.height.value)
+    Tester.draw(canvas.graphicsContext2D, canvas.box)
   })
   val timeline = Timeline(Seq.fill(1) {keyFrame})
   timeline.cycleCount = Timeline.Indefinite

@@ -15,33 +15,25 @@ object Tester{
     .toList
 
   var counter = 0
-  def draw(graphicsContext: GraphicsContext, targetWidth: Double, targetHeight: Double): Unit ={
+//  def draw(graphicsContext: GraphicsContext, targetWidth: Double, targetHeight: Double)
+//    = draw(graphicsContext, Box(targetWidth, targetHeight))
+  def draw(graphicsContext: GraphicsContext, targetBox: Box): Unit ={
     if (counter >= files.size)
       counter = 0
 
-    graphicsContext.clearRect(0, 0, targetWidth, targetHeight)
+    graphicsContext.clearRect(Pos(0, 0), targetBox)
     val image = files(counter)
     val imageBox = image.box
-    val targetBox = Box(targetWidth, targetHeight)
 
     val resizedBox = imageBox.getResizedTo(targetBox)
     val startPos = resizedBox.getCenteringPosTo(targetBox)
-    graphicsContext.drawImage(image, startPos.x, startPos.y, resizedBox.width, resizedBox.height)
+    graphicsContext.drawImage(image, startPos, resizedBox)
     counter += 1
   }
-
-  implicit class RichImage(val src: Image){
-    val box = Box(src.width.value, src.height.value)
-  }
-  case class Pos(x: Double, y: Double)
-  case class Box(width: Double, height: Double){
-    def getResizedTo(target: Box): Box ={
-      val ratio = Seq(target.width  / width
-        ,target.height / height).min
-      Box(width * ratio, height * ratio)
-    }
-    def getCenteringPosTo(target: Box): Pos
-    = Pos((target.width  - width ) /2
-      ,(target.height - height) /2)
+  implicit class RichGraphicsContext(val src: GraphicsContext){
+    def clearRect(pos: Pos, box: Box): Unit
+      = src.clearRect(pos.x, pos.y, box.width, box.height)
+    def drawImage(image: Image, pos: Pos, box: Box): Unit
+      = src.drawImage(image, pos.x, pos.y, box.width, box.height)
   }
 }
