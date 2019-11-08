@@ -1,13 +1,10 @@
 package com.github.nnnnusui.moviemaker
 
-import java.nio.file.{Files, Paths}
-
 import scalafx.animation.{KeyFrame, Timeline}
 import scalafx.application.{JFXApp, Platform}
 import scalafx.scene.Scene
 import scalafx.scene.canvas.Canvas
-import scalafx.scene.control.Button
-import scalafx.scene.image.{Image, ImageView}
+import scalafx.scene.control.{Button, Slider}
 import scalafx.scene.layout.BorderPane
 import scalafx.util.Duration
 
@@ -17,15 +14,18 @@ object MovieMaker extends JFXApp{
   val _height = 720
 
   val canvas = new Canvas()
+  val slider = new Slider(0, Tester.files.size, 0)
+  Tester.counter <==> slider.value
 
-  val button = new Button {
+  val button: Button = new Button {
     onAction = _ => Platform.runLater(timeline.play())
   }
-  val pane = new BorderPane {
+  val pane: BorderPane = new BorderPane {
+//    left = button
     center = canvas
-//    bottom = button
+    bottom = slider
   }
-  val _scene = new Scene {
+  val _scene: Scene = new Scene {
     root = pane
     canvas.width  <== this.width
     canvas.height <== this.height - 50
