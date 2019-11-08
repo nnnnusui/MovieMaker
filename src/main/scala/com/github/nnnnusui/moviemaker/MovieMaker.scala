@@ -13,22 +13,17 @@ import scalafx.util.Duration
 
 object MovieMaker extends JFXApp{
   val fps = 60
-//  val imageView = new ImageView {
-//    this.setPreserveRatio(true)
-//  }
+  val _width  = 1280
+  val _height = 720
+
   val canvas = new Canvas()
-  val keyFrame = KeyFrame(Duration(1000/fps), onFinished = _=> {
-    Tester.draw(canvas.graphicsContext2D)
-  })
-  val timeline = Timeline(Seq.fill(1) {keyFrame})
-  timeline.cycleCount = Timeline.Indefinite
 
   val button = new Button {
     onAction = _ => Platform.runLater(timeline.play())
   }
   val pane = new BorderPane {
     center = canvas
-    bottom = button
+//    bottom = button
   }
   val _scene = new Scene {
     root = pane
@@ -37,10 +32,16 @@ object MovieMaker extends JFXApp{
   }
   stage = new JFXApp.PrimaryStage {
     title.value = "MovieMaker"
-    width = 1200
-    height = 1080
+    width  = _width
+    height = _height
     scene = _scene
   }
+  val keyFrame = KeyFrame(Duration(1000/fps), onFinished = _=> {
+    Tester.draw(canvas.graphicsContext2D, canvas.width.value, canvas.height.value)
+  })
+  val timeline = Timeline(Seq.fill(1) {keyFrame})
+  timeline.cycleCount = Timeline.Indefinite
+  timeline.play()
 }
 
 /* TODO: "../~resource/test/_xxxx.bmp"
