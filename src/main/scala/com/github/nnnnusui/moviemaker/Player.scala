@@ -13,11 +13,11 @@ import scalafx.util.Duration
 class Player(fps: Int){
   import scala.jdk.CollectionConverters._
   private val path = Paths.get("../~resource/test/")
-  val files = Files.list(path).iterator().asScala
+  private val files = Files.list(path).iterator().asScala
     .map(_.toUri.toString)
     .map(it=> new Image(it))
     .toList
-  val maxIndex = files.size -1
+  private val maxIndex = files.size -1
 
   val canvas = new Canvas()
   private val keyFrame = KeyFrame(Duration(1000/fps), onFinished = _=> {
@@ -28,12 +28,7 @@ class Player(fps: Int){
 
   private val slider = new Slider(0, maxIndex, 0) {
     value.addListener((_, _, _)=> draw(canvas.graphicsContext2D, canvas.box))
-    //    onMouseEntered = _=> pause()
-    //    onMouseExited  = _=> play()
-    //    onMouseClicked  = _=> pause()
-    //    onDragDetected  = _=> timeline.pause()
-    //    onDragOver      = _=> Tester.draw(canvas.graphicsContext2D, canvas.box)
-    //    onMouseReleased = _=> Tester.draw(canvas.graphicsContext2D, canvas.box)
+    onMousePressed = _=> pause()
   }
   private val playButton  = new Button("⏵") { onAction = _=> play() }
   private val pauseButton = new Button("⏸") { onAction = _=> pause() }
@@ -57,11 +52,8 @@ class Player(fps: Int){
 
   private def incDraw(graphicsContext: GraphicsContext, targetBox: Box): Unit ={
     draw(graphicsContext, targetBox)
-
-    if (slider.value.value < maxIndex)
-      slider.value.value += 1
-    else
-      slider.value.value = 0
+    if (slider.value.value < maxIndex) slider.value.value += 1
+    else                               slider.value.value  = 0
   }
   private def draw(graphicsContext: GraphicsContext, targetBox: Box): Unit ={
     graphicsContext.clearRect(Pos(0, 0), targetBox)
