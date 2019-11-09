@@ -2,24 +2,32 @@ package com.github.nnnnusui.moviemaker
 
 import java.nio.file.{Files, Paths}
 
-import com.github.nnnnusui.moviemaker.MovieMaker.canvas
-import scalafx.beans.property.IntegerProperty
-import scalafx.scene.canvas.GraphicsContext
-import scalafx.scene.control.Slider
+import scalafx.animation.{KeyFrame, Timeline}
+import scalafx.application.Platform
+import scalafx.scene.canvas.{Canvas, GraphicsContext}
+import scalafx.scene.control.{Button, Slider}
 import scalafx.scene.image.Image
+import scalafx.scene.layout.{BorderPane, HBox}
+import scalafx.util.Duration
 
-object Tester{
+class Player(fps: Int){
   import scala.jdk.CollectionConverters._
-  val path = Paths.get("../~resource/test/")
+  private val path = Paths.get("../~resource/test/")
   val files = Files.list(path).iterator().asScala
     .map(_.toUri.toString)
     .map(it=> new Image(it))
     .toList
   val maxIndex = files.size -1
 
-//  val counter = IntegerProperty(0)
-  val slider = new Slider(0, maxIndex, 0) {
-    value.addListener((_, _, _)=> Tester.draw(canvas.graphicsContext2D, canvas.box))
+  val canvas = new Canvas()
+  private val keyFrame = KeyFrame(Duration(1000/fps), onFinished = _=> {
+    Platform.runLater(incDraw(canvas.graphicsContext2D, canvas.box))
+  })
+  private val timeline = Timeline(Seq.fill(1) {keyFrame})
+  timeline.cycleCount = Timeline.Indefinite
+
+  private val slider = new Slider(0, maxIndex, 0) {
+    value.addListener((_, _, _)=> draw(canvas.graphicsContext2D, canvas.box))
     //    onMouseEntered = _=> pause()
     //    onMouseExited  = _=> play()
     //    onMouseClicked  = _=> pause()
@@ -27,7 +35,27 @@ object Tester{
     //    onDragOver      = _=> Tester.draw(canvas.graphicsContext2D, canvas.box)
     //    onMouseReleased = _=> Tester.draw(canvas.graphicsContext2D, canvas.box)
   }
-  def incDraw(graphicsContext: GraphicsContext, targetBox: Box): Unit ={
+  private val playButton  = new Button("⏵") { onAction = _=> play() }
+  private val pauseButton = new Button("⏸") { onAction = _=> pause() }
+  val pane: BorderPane = new BorderPane {
+    center = canvas
+    bottom = new BorderPane{
+      center = slider
+      right = new HBox {
+        children.addAll(playButton, pauseButton)
+      }
+    }
+  }
+
+
+  def pause(): Unit ={
+    timeline.pause()
+  }
+  def play(): Unit ={
+    timeline.play()
+  }
+
+  private def incDraw(graphicsContext: GraphicsContext, targetBox: Box): Unit ={
     draw(graphicsContext, targetBox)
 
     if (slider.value.value < maxIndex)
@@ -35,7 +63,7 @@ object Tester{
     else
       slider.value.value = 0
   }
-  def draw(graphicsContext: GraphicsContext, targetBox: Box): Unit ={
+  private def draw(graphicsContext: GraphicsContext, targetBox: Box): Unit ={
     graphicsContext.clearRect(Pos(0, 0), targetBox)
     val image = files(slider.value.toInt)
     val imageBox = image.box
