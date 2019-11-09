@@ -2,8 +2,10 @@ package com.github.nnnnusui.moviemaker
 
 import java.nio.file.{Files, Paths}
 
+import com.github.nnnnusui.moviemaker.MovieMaker.canvas
 import scalafx.beans.property.IntegerProperty
 import scalafx.scene.canvas.GraphicsContext
+import scalafx.scene.control.Slider
 import scalafx.scene.image.Image
 
 object Tester{
@@ -13,22 +15,34 @@ object Tester{
     .map(_.toUri.toString)
     .map(it=> new Image(it))
     .toList
+  val maxIndex = files.size -1
 
-  var counter = IntegerProperty(0)
-//  def draw(graphicsContext: GraphicsContext, targetWidth: Double, targetHeight: Double)
-//    = draw(graphicsContext, Box(targetWidth, targetHeight))
+//  val counter = IntegerProperty(0)
+  val slider = new Slider(0, maxIndex, 0) {
+    value.addListener((_, _, _)=> Tester.draw(canvas.graphicsContext2D, canvas.box))
+    //    onMouseEntered = _=> pause()
+    //    onMouseExited  = _=> play()
+    //    onMouseClicked  = _=> pause()
+    //    onDragDetected  = _=> timeline.pause()
+    //    onDragOver      = _=> Tester.draw(canvas.graphicsContext2D, canvas.box)
+    //    onMouseReleased = _=> Tester.draw(canvas.graphicsContext2D, canvas.box)
+  }
+  def incDraw(graphicsContext: GraphicsContext, targetBox: Box): Unit ={
+    draw(graphicsContext, targetBox)
+
+    if (slider.value.value < maxIndex)
+      slider.value.value += 1
+    else
+      slider.value.value = 0
+  }
   def draw(graphicsContext: GraphicsContext, targetBox: Box): Unit ={
-    if (counter.value >= files.size)
-      counter.value = 0
-
     graphicsContext.clearRect(Pos(0, 0), targetBox)
-    val image = files(counter.value)
+    val image = files(slider.value.toInt)
     val imageBox = image.box
 
     val resizedBox = imageBox.getResizedTo(targetBox)
     val startPos = resizedBox.getCenteringPosTo(targetBox)
     graphicsContext.drawImage(image, startPos, resizedBox)
-    counter.value += 1
   }
   implicit class RichGraphicsContext(val src: GraphicsContext){
     def clearRect(pos: Pos, box: Box): Unit

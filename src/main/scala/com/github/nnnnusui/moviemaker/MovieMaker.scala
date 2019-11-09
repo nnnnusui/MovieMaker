@@ -5,7 +5,7 @@ import scalafx.application.{JFXApp, Platform}
 import scalafx.scene.Scene
 import scalafx.scene.canvas.Canvas
 import scalafx.scene.control.{Button, Slider}
-import scalafx.scene.layout.BorderPane
+import scalafx.scene.layout.{BorderPane, HBox}
 import scalafx.util.Duration
 
 object MovieMaker extends JFXApp{
@@ -14,16 +14,24 @@ object MovieMaker extends JFXApp{
   val _height = 720
 
   val canvas = new Canvas()
-  val slider = new Slider(0, Tester.files.size, 0)
-  Tester.counter <==> slider.value
-
-  val button: Button = new Button {
-    onAction = _ => Platform.runLater(timeline.play())
+  val playButton: Button = new Button {
+    text = "⏵"
+    onAction = _=> play()
   }
+  val pauseButton: Button = new Button {
+    text = "⏸"
+    onAction = _=> pause()
+  }
+
   val pane: BorderPane = new BorderPane {
 //    left = button
     center = canvas
-    bottom = slider
+    bottom = new BorderPane{
+      center = Tester.slider
+      right = new HBox {
+        children.addAll(playButton, pauseButton)
+      }
+    }
   }
   val _scene: Scene = new Scene {
     root = pane
@@ -37,11 +45,18 @@ object MovieMaker extends JFXApp{
     scene = _scene
   }
   val keyFrame = KeyFrame(Duration(1000/fps), onFinished = _=> {
-    Tester.draw(canvas.graphicsContext2D, canvas.box)
+    Platform.runLater(Tester.incDraw(canvas.graphicsContext2D, canvas.box))
   })
   val timeline = Timeline(Seq.fill(1) {keyFrame})
   timeline.cycleCount = Timeline.Indefinite
-  timeline.play()
+
+
+  def pause(): Unit ={
+    timeline.pause()
+  }
+  def play(): Unit ={
+    timeline.play()
+  }
 }
 
 /* TODO: "../~resource/test/_xxxx.bmp"
